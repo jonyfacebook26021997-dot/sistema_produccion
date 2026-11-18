@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de Producto Terminado</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <style>
+        .login {
+            max-width: 98%; 
+            width: 98%;
+            margin: 20px auto;
+            padding: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-control-calidad {
+            background-color: #f39c12; 
+            color: white; 
+            width: 100%; 
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-control-calidad:hover {
+            background-color: #e67e22;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login">
+
+        <h1>📦 Almacén de Producto Terminado</h1>
+
+        <!-- Contenedor dinámico de tarjetas -->
+        <div id="resumenStock"></div>
+
+        <br>
+        <!-- Botón para regresar al menú principal -->
+        <button onclick="location.href='index.html'" style="background-color: #6c757d; color: white; width: 100%;">
+            ⬅️ Volver al Menú Principal
+        </button>
+
+        <!-- Botón para gestionar o restablecer productos agotados -->
+        <button onclick="revisarProductosOcultos()" class="btn-control-calidad">
+            🔍 Ver / Restablecer Productos Agotados en Control de Calidad
+        </button>
+
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ccc;">
+
+        <h2>📋 Historial de Movimientos Automáticos</h2>
+
+        <!-- Contenedor para el buscador inyectado desde JS -->
+        <div id="contenedorBuscadorHistorial"></div>
+
+        <div style="overflow-x: auto;">
+            <table id="tablaInventario" border="1" style="width: 100%; border-collapse: collapse; text-align: left; margin-top: 15px; background: white; color: black;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 10px;">Fecha / Hora</th>
+                        <th style="padding: 10px;">Movimiento</th>
+                        <th style="padding: 10px;">Categoría</th>
+                        <th style="padding: 10px;">Variedad / Detalle</th>
+                        <th style="padding: 10px;">Lote Producto Terminado</th>
+                        <th style="padding: 10px;">Cantidad</th>
+                        <th style="padding: 10px;">Observaciones</th>
+                        <th style="padding: 10px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyInventario">
+                    <!-- Los registros se generan automáticamente desde JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Carga del script principal -->
+    <script type="module" src="js/inventarioproductoterminado.js"></script>
+</body>
+
+</html>
