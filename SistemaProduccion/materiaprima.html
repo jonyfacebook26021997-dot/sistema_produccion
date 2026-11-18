@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materia Prima</title>
+
+<link rel="stylesheet" href="css/estilo.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* ========== SOLUCIÓN AL DESCUADRE (TABLA RESPONSIVA) ========== */
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+#tablaMateria {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+/* ========== CORRECCIÓN DE COLORES EN TÍTULOS ========== */
+#tablaMateria thead th {
+    background-color: #0d6efd;
+    color: white !important;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #ddd;
+}
+
+#tablaMateria td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+#tablaMateria tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#tablaMateria tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.tabla-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+.tabla-responsive::-webkit-scrollbar-thumb {
+    background: #0d6efd;
+    border-radius: 4px;
+}
+.tabla-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login">
+
+<h1>REGISTRO DE MATERIA PRIMA</h1>
+
+<label>Fecha y hora</label>
+<input type="datetime-local" id="fechaHora">
+
+<label>Número consecutivo</label>
+<input type="text" id="numeroRecepcion">
+
+<label>Proveedor</label>
+<input type="text" id="proveedor">
+
+<label>Material o insumo</label>
+<input type="text" id="material">
+
+<label>Lote del proveedor</label>
+<select id="loteProveedor">
+    <option value="N/A">N/A</option>
+    <option value="SI">Sí tiene</option>
+</select>
+
+<input type="text" id="loteProveedorTexto" placeholder="Ingrese lote si aplica">
+
+<label>Lote interno</label>
+<input type="text" id="loteInterno">
+
+<label>Cantidad en bolsas</label>
+<input type="number" id="cantidad">
+
+<label>Peso total (kg)</label>
+<input type="number" id="pesoTotal">
+
+<div style="margin-top:10px;">
+    <label>Condición transporte</label><br>
+    <select id="condTransporte">
+        <option>Excelente</option>
+        <option>Buena</option>
+        <option>Regular</option>
+        <option>Deficiente</option>
+    </select>
+</div>
+
+<br>
+
+<div>
+    <label>Condición material</label><br>
+    <select id="condMaterial">
+        <option>Excelente</option>
+        <option>Buena</option>
+        <option>Regular</option>
+        <option>Deficiente</option>
+    </select>
+</div>
+
+<br>
+
+<div>
+    <label>Observaciones</label><br>
+    <textarea id="observaciones" rows="3" style="width:100%;"></textarea>
+</div>
+
+
+<label>Entregado por</label>
+<input type="text" id="entregadoPor">
+
+<label>Recibido por</label>
+<input type="text" id="recibidoPor">
+
+<br><br>
+
+<button onclick="guardarRegistro()" id="btnGuardar">💾 Guardar</button>
+<button onclick="location.reload()">🔄 Actualizar</button>
+<button onclick="location.href='menu.html'">🏠 Volver</button>
+
+<hr>
+
+<h2>BUSCAR HISTORIAL</h2>
+
+<!-- Buscador simple y limpio igual que en empaque -->
+<div style="margin-bottom: 20px; max-width: 400px;">
+    <label>Buscar registro</label><br>
+    <input type="text" id="buscarConsecutivo" placeholder="Escribe para buscar por consecutivo, proveedor, lote..." style="width: 100%; padding: 8px; box-sizing: border-box;">
+</div>
+
+<h3 id="totalRegistros">Total registros: 0</h3>
+
+<hr>
+
+<h2>REGISTROS DE INVENTARIO</h2>
+
+<div class="tabla-responsive">
+    <table id="tablaMateria">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Consecutivo</th>
+                <th>Proveedor</th>
+                <th>Material</th>
+                <th>Lote Prov.</th>
+                <th>Lote Interno</th>
+                <th>Cantidad en bolsas</th>
+                <th>Peso total (kg)</th>
+                <th>Estado / Stock</th>
+                <th>Acciones</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyMateria"></tbody>
+    </table>
+</div>
+
+</div>
+
+<script type="module" src="js/materiaprima.js"></script>
+
+</body>
+</html>
