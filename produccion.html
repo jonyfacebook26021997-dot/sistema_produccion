@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Producción</title>
+
+<link rel="stylesheet" href="css/estilo.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* ========== ESTILOS DEL ENCABEZADO OFICIAL CON CONTROL DE EDICIÓN ========== */
+.contenedor-encabezado-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.tabla-encabezado-oficial {
+    display: flex;
+    width: 100%;
+    border: 2px solid #333;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.encabezado-logo {
+    flex: 1.2;
+    border-right: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background: #fff;
+}
+
+.encabezado-logo img {
+    max-width: 100%;
+    max-height: 60px;
+    object-fit: contain;
+}
+
+.encabezado-titulo {
+    flex: 2.8;
+    border-right: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+}
+
+.encabezado-datos {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+}
+
+.fila-dato {
+    display: flex;
+    border-bottom: 1px solid #333;
+    flex: 1;
+}
+
+.fila-dato:last-child {
+    border-bottom: none;
+}
+
+.etiqueta-campo {
+    flex: 1;
+    border-right: 1px solid #333;
+    padding: 8px 10px;
+    font-weight: bold;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.valor-campo {
+    flex: 1;
+    padding: 8px 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.input-edicion-encabezado {
+    width: 95%;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #0d6efd;
+    border-radius: 4px;
+    background-color: #fff9db;
+    color: #000;
+    box-sizing: border-box;
+}
+
+.controles-encabezado {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ========== ALINEACIÓN VERTICAL DEL FORMULARIO ========== */
+.login > label,
+.login > input,
+.login > select {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+/*========== ESTILOS DE BÚSQUEDA ==========*/
+.contenedor-busqueda {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.contenedor-busqueda label {
+    font-weight: bold;
+    color: #333;
+}
+
+.contenedor-busqueda input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #0d6efd;
+    border-radius: 6px;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.contenedor-busqueda input:focus {
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+}
+
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 600px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+#tablaProduccion {
+    width: 100%;
+    min-width: 1750px; 
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+#tablaProduccion thead th {
+    position: sticky;
+    top: 0;
+    background: #0d6efd;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    z-index: 100;
+}
+
+#tablaProduccion td {
+    padding: 8px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#tablaProduccion tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+#tablaProduccion tbody tr:hover {
+    background: #dbeafe;
+}
+
+#tablaProduccion th,
+#tablaProduccion td {
+    border: 1px solid #ddd;
+}
+
+/* Scroll bonito */
+.tabla-responsive::-webkit-scrollbar {
+    height: 12px;
+}
+.tabla-responsive::-webkit-scrollbar-track {
+    background: #e9ecef;
+}
+.tabla-responsive::-webkit-scrollbar-thumb {
+    background: #0d6efd;
+    border-radius: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login">
+
+<!-- ENCABEZADO OFICIAL CON BOTÓN "EDITAR ENCABEZADO" Y "GUARDAR" -->
+<div class="contenedor-encabezado-wrapper">
+    <div id="encabezadoParaPdf" class="tabla-encabezado-oficial">
+        <div class="encabezado-logo">
+            <img src="img/logo.png" alt="LAT-ZERO coffee">
+        </div>
+        <div class="encabezado-titulo">
+            <h3 id="pdfTitulo" style="margin: 0; font-size: 18px; font-weight: bold; color: #000; width: 100%; text-align: center;">
+                REGISTRO Y CONTROL DE PRODUCCIÓN
+            </h3>
+            <input type="text" id="inputPdfTitulo" class="input-edicion-encabezado" style="display: none; font-size: 16px;" value="REGISTRO Y CONTROL DE PRODUCCIÓN">
+        </div>
+        <div class="encabezado-datos">
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Código:</span>
+                <div class="valor-campo">
+                    <span id="pdfCodigo">REGP10</span>
+                    <input type="text" id="inputPdfCodigo" class="input-edicion-encabezado" style="display: none;" value="REGP10">
+                </div>
+            </div>
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Versión:</span>
+                <div class="valor-campo">
+                    <span id="pdfVersion">001</span>
+                    <input type="text" id="inputPdfVersion" class="input-edicion-encabezado" style="display: none;" value="001">
+                </div>
+            </div>
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Elaboración:</span>
+                <div class="valor-campo">
+                    <span id="pdfElaboracion">01/02/2024</span>
+                    <input type="text" id="inputPdfElaboracion" class="input-edicion-encabezado" style="display: none;" value="01/02/2024">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de control del encabezado -->
+    <div class="controles-encabezado">
+        <button type="button" id="btnEditarEncabezado" onclick="activarEdicionEncabezado()" style="background-color: #0d6efd; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+            ✏️ Editar encabezado
+        </button>
+
+        <div id="grupoGuardarEncabezado" style="display: none; gap: 8px; align-items: center;">
+            <span style="font-size: 13px; color: #856404; font-weight: bold;">Editando:</span>
+            <button type="button" onclick="guardarEncabezado()" style="background-color: #198754; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+                💾 Guardar
+            </button>
+            <button type="button" onclick="cancelarEdicionEncabezado()" style="background-color: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+                ❌ Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+<!-- FIN DEL ENCABEZADO -->
+
+<h1>REGISTRO DE PRODUCCIÓN</h1>
+
+<label>Fecha y hora de inicio</label>
+<input type="datetime-local" id="fechaInicio">
+
+<label>Fecha y hora de fin</label>
+<input type="datetime-local" id="fechaFin">
+
+<label>Lote disponible (Materia Prima)</label>
+<select id="lote">
+    <option value="">Seleccione lote</option>
+</select>
+
+<label>Producto</label>
+<input type="text" id="producto" placeholder="Nombre del producto">
+
+<label>Total café en grano (kg)</label>
+<input type="number" step="0.01" id="cafe">
+
+<label>Punto de molienda</label>
+<input type="number" id="molienda">
+
+<label>Arranque máquina</label>
+<input type="number" id="arranque">
+
+<label>Arranque final máquina</label>
+<input type="number" id="final">
+
+<label>Total cápsulas</label>
+<input type="number" id="capsulas">
+
+<label>Desechos</label>
+<input type="number" id="desechos">
+
+<label>Total neto</label>
+<input type="number" id="neto" readonly>
+
+<br>
+
+<!-- BOTONES PRINCIPALES -->
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+    <button onclick="guardarProduccion()" id="btnGuardar">💾 Guardar</button>
+    <button onclick="location.href='menu.html'">🏠 Volver</button>
+
+    <!-- Campo de texto con autocompletado (datalist) y Botón para exportar PDF escribiendo o seleccionando -->
+    <div style="display: flex; gap: 5px; align-items: center; margin-left: 10px; background: #f8f9fa; padding: 6px; border: 1px solid #ccc; border-radius: 6px;">
+        <input list="listaPdfProduccion" id="inputPdfProduccion" placeholder="Escriba o seleccione lote/producto..." style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 280px; font-size: 14px;">
+        <datalist id="listaPdfProduccion">
+            <!-- Se llena dinámicamente desde JavaScript -->
+        </datalist>
+        <button type="button" onclick="exportarPdfProduccionSeleccionado()" style="background-color: #dc3545; color: white; padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">📄 Exportar PDF</button>
+    </div>
+</div>
+
+<hr>
+
+<h2>BUSCAR HISTORIAL</h2>
+
+<div class="contenedor-busqueda" style="max-width: 400px;">
+    <label for="buscarProduccion">Buscar registro</label>
+    <input type="text" id="buscarProduccion" oninput="buscarProduccion()" placeholder="Escribe para buscar por lote, producto, fecha...">
+</div>
+
+<h3 id="totalRegistros">Total registros: 0</h3>
+
+<hr>
+
+<h2>REGISTROS DE PRODUCCIÓN</h2>
+
+<div class="tabla-responsive">
+    <table id="tablaProduccion">
+        <thead>
+            <tr>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Lote</th>
+                <th>Producto</th>
+                <th>Café (kg)</th>
+                <th>Molienda</th>
+                <th>Arranque</th>
+                <th>Final</th>
+                <th>Cápsulas</th>
+                <th>Desechos</th>
+                <th>Neto</th>
+                <th>Acciones</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyProduccion"></tbody>
+    </table>
+</div>
+
+</div>
+
+<script type="module" src="js/produccion.js"></script>
+
+</body>
+</html>
