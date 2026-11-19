@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materia Prima</title>
+
+<link rel="stylesheet" href="css/estilo.css">
+
+<!-- Librerías necesarias para generar PDF y capturar el encabezado exacto -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* ========== ESTILOS DEL ENCABEZADO OFICIAL CON CONTROL DE EDICIÓN ========== */
+.contenedor-encabezado-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.tabla-encabezado-oficial {
+    display: flex;
+    width: 100%;
+    border: 2px solid #333;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.encabezado-logo {
+    flex: 1.2;
+    border-right: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background: #fff;
+}
+
+.encabezado-logo img {
+    max-width: 100%;
+    max-height: 60px;
+    object-fit: contain;
+}
+
+.encabezado-titulo {
+    flex: 2.8;
+    border-right: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+}
+
+.encabezado-datos {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+}
+
+.fila-dato {
+    display: flex;
+    border-bottom: 1px solid #333;
+    flex: 1;
+}
+
+.fila-dato:last-child {
+    border-bottom: none;
+}
+
+.etiqueta-campo {
+    flex: 1;
+    border-right: 1px solid #333;
+    padding: 8px 10px;
+    font-weight: bold;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.valor-campo {
+    flex: 1;
+    padding: 8px 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* Inputs que aparecen al presionar "Editar encabezado" */
+.input-edicion-encabezado {
+    width: 95%;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #0d6efd;
+    border-radius: 4px;
+    background-color: #fff9db;
+    color: #000;
+    box-sizing: border-box;
+}
+
+/* Barra de controles debajo del encabezado */
+.controles-encabezado {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ========== SOLUCIÓN AL DESCUADRE (TABLA RESPONSIVA) ========== */
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+#tablaMateria {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+#tablaMateria thead th {
+    background-color: #0d6efd;
+    color: white !important;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #ddd;
+}
+
+#tablaMateria td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+#tablaMateria tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#tablaMateria tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.tabla-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+.tabla-responsive::-webkit-scrollbar-thumb {
+    background: #0d6efd;
+    border-radius: 4px;
+}
+.tabla-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login">
+
+<!-- ENCABEZADO OFICIAL CON BOTÓN "EDITAR ENCABEZADO" Y "GUARDAR" -->
+<div class="contenedor-encabezado-wrapper">
+    <div id="encabezadoParaPdf" class="tabla-encabezado-oficial">
+        <div class="encabezado-logo">
+            <img src="img/logo.png" alt="LAT-ZERO coffee">
+        </div>
+        <div class="encabezado-titulo">
+            <h3 id="pdfTitulo" style="margin: 0; font-size: 18px; font-weight: bold; color: #000; width: 100%; text-align: center;">
+                REGISTRO DE RECEPCIÓN Y CONTROL DE MATERIAS PRIMAS E INSUMOS
+            </h3>
+            <input type="text" id="inputPdfTitulo" class="input-edicion-encabezado" style="display: none; font-size: 16px;" value="REGISTRO DE RECEPCIÓN Y CONTROL DE MATERIAS PRIMAS E INSUMOS">
+        </div>
+        <div class="encabezado-datos">
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Código:</span>
+                <div class="valor-campo">
+                    <span id="pdfCodigo">REGP9</span>
+                    <input type="text" id="inputPdfCodigo" class="input-edicion-encabezado" style="display: none;" value="REGP9">
+                </div>
+            </div>
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Versión:</span>
+                <div class="valor-campo">
+                    <span id="pdfVersion">001</span>
+                    <input type="text" id="inputPdfVersion" class="input-edicion-encabezado" style="display: none;" value="001">
+                </div>
+            </div>
+            <div class="fila-dato">
+                <span class="etiqueta-campo">Elaboración:</span>
+                <div class="valor-campo">
+                    <span id="pdfElaboracion">01/02/2024</span>
+                    <input type="text" id="inputPdfElaboracion" class="input-edicion-encabezado" style="display: none;" value="01/02/2024">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de control del encabezado -->
+    <div class="controles-encabezado">
+        <button type="button" id="btnEditarEncabezado" onclick="activarEdicionEncabezado()" style="background-color: #0d6efd; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+            ✏️ Editar encabezado
+        </button>
+
+        <div id="grupoGuardarEncabezado" style="display: none; gap: 8px; align-items: center;">
+            <span style="font-size: 13px; color: #856404; font-weight: bold;">Editando:</span>
+            <button type="button" onclick="guardarEncabezado()" style="background-color: #198754; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+                💾 Guardar
+            </button>
+            <button type="button" onclick="cancelarEdicionEncabezado()" style="background-color: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto;">
+                ❌ Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+<!-- FIN DEL ENCABEZADO -->
+
+<h1>REGISTRO DE MATERIA PRIMA</h1>
+
+<label>Fecha y hora</label>
+<input type="datetime-local" id="fechaHora">
+
+<label>Número consecutivo</label>
+<input type="text" id="numeroRecepcion">
+
+<label>Proveedor</label>
+<input type="text" id="proveedor">
+
+<label>Material o insumo</label>
+<input type="text" id="material">
+
+<label>Lote del proveedor</label>
+<select id="loteProveedor">
+    <option value="N/A">N/A</option>
+    <option value="SI">Sí tiene</option>
+</select>
+
+<input type="text" id="loteProveedorTexto" placeholder="Ingrese lote si aplica">
+
+<label>Lote interno</label>
+<input type="text" id="loteInterno">
+
+<label>Cantidad en bolsas</label>
+<input type="number" id="cantidad">
+
+<label>Peso total (kg)</label>
+<input type="number" id="pesoTotal">
+
+<div style="margin-top:10px;">
+    <label>Condición transporte</label><br>
+    <select id="condTransporte">
+        <option>Excelente</option>
+        <option>Buena</option>
+        <option>Regular</option>
+        <option>Deficiente</option>
+    </select>
+</div>
+
+<br>
+
+<div>
+    <label>Condición material</label><br>
+    <select id="condMaterial">
+        <option>Excelente</option>
+        <option>Buena</option>
+        <option>Regular</option>
+        <option>Deficiente</option>
+    </select>
+</div>
+
+<br>
+
+<div>
+    <label>Observaciones</label><br>
+    <textarea id="observaciones" rows="3" style="width:100%;"></textarea>
+</div>
+
+
+<label>Entregado por</label>
+<input type="text" id="entregadoPor">
+
+<label>Recibido por</label>
+<input type="text" id="recibidoPor">
+
+<br><br>
+
+<!-- BOTONES PRINCIPALES -->
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+    <button onclick="guardarRegistro()" id="btnGuardar">💾 Guardar</button>
+    <button onclick="location.href='menu.html'">🏠 Volver</button>
+    
+    <!-- Input con datalist y Botón para exportar PDF seleccionado escribiendo o buscando -->
+    <div style="display: flex; gap: 5px; align-items: center; margin-left: 10px; background: #f8f9fa; padding: 6px; border: 1px solid #ccc; border-radius: 6px;">
+        <input list="listaRegistrosPdf" id="inputPdfRegistro" placeholder="Escriba o seleccione lote..." style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 260px; font-size: 14px;">
+        <datalist id="listaRegistrosPdf">
+            <!-- Se llena dinámicamente desde JavaScript -->
+        </datalist>
+        <button type="button" onclick="exportarPdfSeleccionado()" style="background-color: #dc3545; color: white; padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">📄 Exportar PDF</button>
+    </div>
+</div>
+
+<hr>
+
+<h2>BUSCAR HISTORIAL</h2>
+
+<div style="margin-bottom: 20px; max-width: 400px;">
+    <label>Buscar registro</label><br>
+    <input type="text" id="buscarConsecutivo" placeholder="Escribe para buscar por consecutivo, proveedor, lote..." style="width: 100%; padding: 8px; box-sizing: border-box;">
+</div>
+
+<h3 id="totalRegistros">Total registros: 0</h3>
+
+<hr>
+
+<h2>REGISTROS DE INVENTARIO</h2>
+
+<div class="tabla-responsive">
+    <table id="tablaMateria">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Consecutivo</th>
+                <th>Proveedor</th>
+                <th>Material</th>
+                <th>Lote Prov.</th>
+                <th>Lote Interno</th>
+                <th>Cantidad en bolsas</th>
+                <th>Peso total (kg)</th>
+                <th>Estado / Stock</th>
+                <th>Acciones</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyMateria"></tbody>
+    </table>
+</div>
+
+</div>
+
+<script type="module" src="js/materiaprima.js"></script>
+
+</body>
+</html>
